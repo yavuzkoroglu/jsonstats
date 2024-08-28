@@ -46,7 +46,6 @@ void atFalse_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
 }
 
 void atNameEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    nTokens++;
     isFirstElement = 0;
 }
 
@@ -114,7 +113,7 @@ long compute_jstat(void) {
         atArrayEnd_jstat,
         atArrayStart_jstat,
         atFalse_jstat,
-        emptyVoidEvent_jsonp,
+        atNameEnd_jstat,
         atNameStart_jstat,
         atNull_jstat,
         atNumber_jstat,
