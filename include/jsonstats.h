@@ -1,3 +1,8 @@
+/**
+ * @file jsonstats.h
+ * @brief Defines events to parse JSON stats.
+ * @author Yavuz Koroglu
+ */
 #ifndef JSONSTATS_H
     #define JSONSTATS_H
     #include "padkit/jsonparser.h"
@@ -20,7 +25,15 @@
     void atValueEnd_jstat   ([[maybe_unused]] JSONParser jp[static const 1]);
     void atValueStart_jstat ([[maybe_unused]] JSONParser jp[static const 1]);
 
+    /**
+     * @brief Computes the JSON statistics.
+     *
+     * @return A long integer (errorcode).
+     */
     long compute_jstat(void);
 
+    /**
+     * @brief Dumps the JSON statistics to stdout.
+     */
     void dump_jstat(void);
 #endif

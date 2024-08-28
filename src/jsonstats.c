@@ -1,3 +1,8 @@
+/**
+ * @file jsonstats.c
+ * @brief Implements the functions defined in jsonstats.h
+ * @author Yavuz Koroglu
+ */
 #include "jsonstats.h"
 #include "padkit/debug.h"
 
