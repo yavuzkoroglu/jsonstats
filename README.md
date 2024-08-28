@@ -36,7 +36,7 @@ bin/jsonstats example/example1.json
         # Arrays = 1
        # Strings = 134
          # Names = 81
- # String Values = 54
+ # String Values = 53
       # Booleans = 3 (1 falses, 2 trues)
          # Nulls = 0
        # Numbers = 18
