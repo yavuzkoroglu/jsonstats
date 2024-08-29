@@ -86,7 +86,7 @@ void atNull_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
 
 void atNumber_jstat(
     [[maybe_unused]] JSONParser jp[static const 1],
-    [[maybe_unused]] double const number
+    double const number
 ) {
     runningAvg += (number - runningAvg) / (double)(++nNumbers);
 }

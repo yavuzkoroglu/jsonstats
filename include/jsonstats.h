@@ -15,7 +15,7 @@
     void atNull_jstat       ([[maybe_unused]] JSONParser jp[static const 1]);
     void atNumber_jstat     (
         [[maybe_unused]] JSONParser jp[static const 1],
-        [[maybe_unused]] double const number
+        double const number
     );
     void atObjectEnd_jstat  ([[maybe_unused]] JSONParser jp[static const 1]);
     void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]);
@@ -23,7 +23,7 @@
     void atString_jstat     (
         [[maybe_unused]] JSONParser jp[static const 1],
         [[maybe_unused]] char const str[static const 1],
-        [[maybe_unused]] size_t const len
+        size_t const len
     );
     void atTrue_jstat       ([[maybe_unused]] JSONParser jp[static const 1]);
     void atValueEnd_jstat   ([[maybe_unused]] JSONParser jp[static const 1]);
