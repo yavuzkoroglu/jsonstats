@@ -1,0 +1,7 @@
+{
+    "grades": [ 4.00, 3.25, 2.56, 3.62 ],
+    "courses": {
+        "mandatory": [ "CE101", "CE102" ],
+        "selective": [ "HUM101", "PHYS101" ]
+    }
+}

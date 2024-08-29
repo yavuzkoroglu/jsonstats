@@ -24,25 +24,39 @@ static size_t nStringValues = 0;
 static size_t nTokens       = 0;
 static size_t nTrues        = 0;
 static size_t nValues       = 0;
+static size_t nVars         = 0;
 
 static size_t depth         = 0;
 static size_t maxDepth      = 0;
 
 static size_t maxStrLen     = 0;
 
+static double runningAvg    = 0.00;
+
 void atArrayEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the ']' token. */
     nTokens++;
-    depth--;
+
+    /* The next token may be preceded with ',' or ':' */
     isFirstElement = 0;
+
+    depth--;
 }
 
 void atArrayStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    nTokens++;
+    /* Count the preceding ',' or ':' token, if available */
     nTokens += !isFirstElement;
+
+    /* Count the '[' token. */
+    nTokens++;
+
+    /* The next token will NOT be preceded with ',' or ':' */
+    isFirstElement = 1;
+
     nArrays++;
+
     depth++;
     if (maxDepth < depth) maxDepth = depth;
-    isFirstElement = 1;
 }
 
 void atFalse_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
@@ -51,12 +65,18 @@ void atFalse_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
 }
 
 void atNameEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* The next token will be preceded by a ':' */
     isFirstElement = 0;
 }
 
 void atNameStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    nTokens++;
+    /* Count the preceding ',' or ':' token, if available */
     nTokens += !isFirstElement;
+
+    /* A name is a token */
+    nTokens++;
+
+    nVars++;
     nNames++;
 }
 
@@ -64,24 +84,63 @@ void atNull_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     nNulls++;
 }
 
-void atNumber_jstat([[maybe_unused]] JSONParser jp[static const 1], [[maybe_unused]] double const number) {
-    nTokens++;
-    nNumbers++;
+void atNumber_jstat(
+    [[maybe_unused]] JSONParser jp[static const 1],
+    [[maybe_unused]] double const number
+) {
+    runningAvg += (number - runningAvg) / (double)(++nNumbers);
 }
 
 void atObjectEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the '}' token. */
     nTokens++;
-    depth--;
+
+    /* The next token may be preceded with ',' or ':' */
     isFirstElement = 0;
+
+    depth--;
 }
 
 void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    nTokens++;
+    /* Count the preceding ',' or ':' token, if available */
     nTokens += !isFirstElement;
+
+    /* Count the '{' token */
+    nTokens++;
+
+    /* The next token will NOT be preceded with ',' or ':' */
+    isFirstElement = 1;
+
     nObjects++;
+
     depth++;
     if (maxDepth < depth) maxDepth = depth;
-    isFirstElement = 1;
+}
+
+void atRootStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    isFirstElement  = 1;
+    parsingValue    = 0;
+
+    nArrays         = 0;
+    nBooleans       = 0;
+    nFalses         = 0;
+    nNames          = 0;
+    nNulls          = 0;
+    nNumbers        = 0;
+    nObjects        = 0;
+    nStrings        = 0;
+    nStringValues   = 0;
+    nTokens         = 0;
+    nTrues          = 0;
+    nValues         = 0;
+    nVars           = 0;
+
+    depth           = 0;
+    maxDepth        = 0;
+
+    maxStrLen       = 0;
+
+    runningAvg      = 0.00;
 }
 
 void atString_jstat(
@@ -101,12 +160,19 @@ void atTrue_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
 
 void atValueEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     parsingValue    = 0;
-    isFirstElement  = 0;
+
+    /* The next token will be preceded by a ':' */
+    isFirstElement = 0;
 }
 
 void atValueStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    nTokens++;
+    /* Count the preceding ',' or ':' token, if available */
     nTokens += !isFirstElement;
+
+    /* Every value is a token */
+    nTokens++;
+
+    nVars++;
     nValues++;
     parsingValue = 1;
 }
@@ -125,7 +191,7 @@ long compute_jstat(void) {
         atObjectEnd_jstat,
         atObjectStart_jstat,
         emptyVoidEvent_jsonp,
-        emptyVoidEvent_jsonp,
+        atRootStart_jstat,
         atString_jstat,
         atTrue_jstat,
         atValueEnd_jstat,
@@ -146,9 +212,12 @@ void dump_jstat(void) {
     printf("         # Nulls = %zu\n", nNulls);
     printf("       # Numbers = %zu\n", nNumbers);
     printf("        # Values = %zu\n", nValues);
+    printf("     # Variables = %zu\n", nVars);
     puts("");
     printf("       Max Depth = %zu\n", maxDepth);
     printf("  Max String Len = %zu\n", maxStrLen);
+    puts("");
+    printf("Avg. All Numbers = %.2lf\n", runningAvg);
 }
 
 int main(int argc, char* argv[]) {

@@ -13,9 +13,13 @@
     void atNameEnd_jstat    ([[maybe_unused]] JSONParser jp[static const 1]);
     void atNameStart_jstat  ([[maybe_unused]] JSONParser jp[static const 1]);
     void atNull_jstat       ([[maybe_unused]] JSONParser jp[static const 1]);
-    void atNumber_jstat     ([[maybe_unused]] JSONParser jp[static const 1], [[maybe_unused]] double const number);
+    void atNumber_jstat     (
+        [[maybe_unused]] JSONParser jp[static const 1],
+        [[maybe_unused]] double const number
+    );
     void atObjectEnd_jstat  ([[maybe_unused]] JSONParser jp[static const 1]);
     void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]);
+    void atRootStart_jstat  ([[maybe_unused]] JSONParser jp[static const 1]);
     void atString_jstat     (
         [[maybe_unused]] JSONParser jp[static const 1],
         [[maybe_unused]] char const str[static const 1],

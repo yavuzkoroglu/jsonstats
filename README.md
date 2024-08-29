@@ -21,28 +21,38 @@ cd jsonstats
 make
 ```
 
-## Example Usage(`<json-file>` = example/example1.json)
+## Example Usage(`<json-file>` = example/example4.json)
 
 ```
-bin/jsonstats example/example1.json
+cat example/example4.json; bin/jsonstats example/example4.json
 ```
 
-## Example Output(`<json-file>` = example/example1.json)
+## Example Output(`<json-file>` = example/example4.json)
 
 ```
+{
+    "grades": [ 4.00, 3.25, 2.56, 3.62 ],
+    "courses": {
+        "mandatory": [ "CE101", "CE102" ],
+        "selective": [ "HUM101", "PHYS101" ]
+    }
+}
 
-        # Tokens = 353
-       # Objects = 12
-        # Arrays = 1
-       # Strings = 134
-         # Names = 81
- # String Values = 53
-      # Booleans = 3 (1 falses, 2 trues)
+        # Tokens = 33
+       # Objects = 2
+        # Arrays = 3
+       # Strings = 8
+         # Names = 4
+ # String Values = 4
+      # Booleans = 0 (0 falses, 0 trues)
          # Nulls = 0
-       # Numbers = 18
-        # Values = 74
+       # Numbers = 4
+        # Values = 8
+     # Variables = 12
 
-       Max Depth = 5
-  Max String Len = 59
+       Max Depth = 3
+  Max String Len = 9
+
+Avg. All Numbers = 3.36
 
 ```
