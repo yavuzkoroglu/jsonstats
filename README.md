@@ -8,7 +8,7 @@ Takes a JSON file and reports statistics about that JSON file.
 Usage bin/jsonstats <json-file>
 ```
 
-## How To Clone Thie Repository
+## How To Clone This Repository
 
 ```
 git clone https://github.com/yavuzkoroglu/jsonstats.git
