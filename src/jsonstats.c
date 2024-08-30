@@ -7,7 +7,6 @@
 #include "padkit/debug.h"
 
 static FILE* jsonFile       = nullptr;
-static JSONParser jsonp[1]  = { NOT_A_JSON_PARSER };
 
 static bool isFirstElement  = 1;
 static bool parsingValue    = 0;
@@ -33,24 +32,24 @@ static size_t maxStrLen     = 0;
 
 static double runningAvg    = 0.00;
 
-void atArrayEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the ']' token. */
+static void atArrayEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* ']' is a token. */
     nTokens++;
 
-    /* The next token may be preceded with ',' or ':' */
+    /* The next token may be preceded with ',' or ':'. */
     isFirstElement = 0;
 
     depth--;
 }
 
-void atArrayStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the preceding ',' or ':' token, if available */
+static void atArrayStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the preceding ',' or ':' token, if available. */
     nTokens += !isFirstElement;
 
-    /* Count the '[' token. */
+    /* '[' is a token. */
     nTokens++;
 
-    /* The next token will NOT be preceded with ',' or ':' */
+    /* The next token will NOT be preceded with ',' or ':'. */
     isFirstElement = 1;
 
     nArrays++;
@@ -59,56 +58,56 @@ void atArrayStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     if (maxDepth < depth) maxDepth = depth;
 }
 
-void atFalse_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+static void atFalse_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     nBooleans++;
     nFalses++;
 }
 
-void atNameEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* The next token will be preceded by a ':' */
+static void atNameEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* The next token will be preceded by a ':'. */
     isFirstElement = 0;
 }
 
-void atNameStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the preceding ',' or ':' token, if available */
+static void atNameStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the preceding ',' or ':' token, if available. */
     nTokens += !isFirstElement;
 
-    /* A name is a token */
+    /* A name is a token. */
     nTokens++;
 
     nVars++;
     nNames++;
 }
 
-void atNull_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+static void atNull_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     nNulls++;
 }
 
-void atNumber_jstat(
+static void atNumber_jstat(
     [[maybe_unused]] JSONParser jp[static const 1],
     double const number
 ) {
     runningAvg += (number - runningAvg) / (double)(++nNumbers);
 }
 
-void atObjectEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the '}' token. */
+static void atObjectEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* '}' is a token. */
     nTokens++;
 
-    /* The next token may be preceded with ',' or ':' */
+    /* The next token may be preceded with ',' or ':'. */
     isFirstElement = 0;
 
     depth--;
 }
 
-void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the preceding ',' or ':' token, if available */
+static void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the preceding ',' or ':' token, if available. */
     nTokens += !isFirstElement;
 
-    /* Count the '{' token */
+    /* '{' is a token. */
     nTokens++;
 
-    /* The next token will NOT be preceded with ',' or ':' */
+    /* The next token will NOT be preceded with ',' or ':'. */
     isFirstElement = 1;
 
     nObjects++;
@@ -117,7 +116,7 @@ void atObjectStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     if (maxDepth < depth) maxDepth = depth;
 }
 
-void atRootStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+static void atRootStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     isFirstElement  = 1;
     parsingValue    = 0;
 
@@ -143,7 +142,7 @@ void atRootStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     runningAvg      = 0.00;
 }
 
-void atString_jstat(
+static void atString_jstat(
     [[maybe_unused]] JSONParser jp[static const 1],
     [[maybe_unused]] char const str[static const 1],
     size_t const len
@@ -153,52 +152,28 @@ void atString_jstat(
     if (maxStrLen < len) maxStrLen = len;
 }
 
-void atTrue_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+static void atTrue_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     nBooleans++;
     nTrues++;
 }
 
-void atValueEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+static void atValueEnd_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
     parsingValue    = 0;
 
-    /* The next token will be preceded by a ':' */
+    /* The next token will be preceded by a ':'. */
     isFirstElement = 0;
 }
 
-void atValueStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
-    /* Count the preceding ',' or ':' token, if available */
+static void atValueStart_jstat([[maybe_unused]] JSONParser jp[static const 1]) {
+    /* Count the preceding ',' or ':' token, if available. */
     nTokens += !isFirstElement;
 
-    /* Every value is a token */
+    /* Every value is a token. */
     nTokens++;
 
     nVars++;
     nValues++;
     parsingValue = 1;
-}
-
-long compute_jstat(void) {
-    construct_jsonp(
-        jsonp,
-        jsonFile,
-        atArrayEnd_jstat,
-        atArrayStart_jstat,
-        atFalse_jstat,
-        atNameEnd_jstat,
-        atNameStart_jstat,
-        atNull_jstat,
-        atNumber_jstat,
-        atObjectEnd_jstat,
-        atObjectStart_jstat,
-        emptyVoidEvent_jsonp,
-        atRootStart_jstat,
-        atString_jstat,
-        atTrue_jstat,
-        atValueEnd_jstat,
-        atValueStart_jstat
-    );
-
-    return parseStream_jsonp(jsonp);
 }
 
 void dump_jstat(void) {
@@ -224,7 +199,7 @@ int main(int argc, char* argv[]) {
     puts("");
 
     if (argc < 2) {
-        printf("Usage: %s <JSON-file>\n\n", argv[0]);
+        printf("  Usage: %s <JSON-file>\n\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -232,36 +207,92 @@ int main(int argc, char* argv[]) {
     if (jsonFile == nullptr) {
         printf("ERROR: Could NOT open '%s'\n\n", argv[1]);
         return EXIT_FAILURE;
-    }
+    } else {
+        JSONParser jp[1] = { NOT_A_JSON_PARSER };
+        construct_jsonp(
+            jp,
+            jsonFile,
+            atArrayEnd_jstat,
+            atArrayStart_jstat,
+            atFalse_jstat,
+            atNameEnd_jstat,
+            atNameStart_jstat,
+            atNull_jstat,
+            atNumber_jstat,
+            atObjectEnd_jstat,
+            atObjectStart_jstat,
+            emptyVoidEvent_jsonp,
+            atRootStart_jstat,
+            atString_jstat,
+            atTrue_jstat,
+            atValueEnd_jstat,
+            atValueStart_jstat
+        );
 
-    switch (compute_jstat()) {
-        case JSON_PARSER_OK:
-            dump_jstat();
-            DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
-            NDEBUG_EXECUTE(fclose(jsonFile))
+        switch (parseStream_jsonp(jp)) {
+            case JSON_PARSER_OK:
+                free_jsonp(jp);
 
-            puts("");
-            return EXIT_SUCCESS;
-        case JSON_PARSER_MEMORY_ERROR:
-            puts("ERROR @ JSONParser: Memory Error\n");
-            return EXIT_FAILURE;
-        case JSON_PARSER_STACK_ERROR:
-            puts("ERROR @ JSONParser: Stack Error\n");
-            return EXIT_FAILURE;
-        case JSON_PARSER_STREAM_ERROR:
-            puts("ERROR @ JSONParser: I/O Error\n");
-            return EXIT_FAILURE;
-        case JSON_PARSER_STRING_ERROR:
-            puts("ERROR @ JSONParser: String Error\n");
-            return EXIT_FAILURE;
-        case JSON_PARSER_SYNTAX_ERROR:
-            puts("ERROR @ JSONParser: Syntax Error\n");
-            return EXIT_FAILURE;
-        case JSON_PARSER_INVALID:
-            puts("ERROR @ JSONParser: Invalid Parser\n");
-            return EXIT_FAILURE;
-        default:
-            puts("ERROR @ JSONParser: Unknown Error\n");
-            return EXIT_FAILURE;
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                dump_jstat();
+                puts("");
+
+                return EXIT_SUCCESS;
+            case JSON_PARSER_MEMORY_ERROR:
+                free_jsonp(jp);
+
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                puts("ERROR @ JSONParser: Memory Error\n");
+
+                return EXIT_FAILURE;
+            case JSON_PARSER_STACK_ERROR:
+                free_jsonp(jp);
+
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                puts("ERROR @ JSONParser: Stack Error\n");
+
+                return EXIT_FAILURE;
+            case JSON_PARSER_STREAM_ERROR:
+                free_jsonp(jp);
+
+                puts("ERROR @ JSONParser: I/O Error\n");
+
+                return EXIT_FAILURE;
+            case JSON_PARSER_STRING_ERROR:
+                free_jsonp(jp);
+
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                puts("ERROR @ JSONParser: String Error\n");
+
+                return EXIT_FAILURE;
+            case JSON_PARSER_SYNTAX_ERROR:
+                free_jsonp(jp);
+
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                puts("ERROR @ JSONParser: Syntax Error\n");
+
+                return EXIT_FAILURE;
+            case JSON_PARSER_INVALID:
+                DEBUG_ERROR_IF(fclose(jsonFile) == EOF)
+                NDEBUG_EXECUTE(fclose(jsonFile))
+
+                puts("ERROR @ JSONParser: Invalid Parser\n");
+
+                return EXIT_FAILURE;
+            default:
+                puts("ERROR @ JSONParser: Unknown Error\n");
+
+                return EXIT_FAILURE;
+        }
     }
 }
