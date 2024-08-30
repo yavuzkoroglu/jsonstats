@@ -20,13 +20,13 @@ cd jsonstats
 make
 ```
 
-## Example Usage(`<json-file>` = example/example4.json)
+## Example Usage(`<json-file>` = examples/example4.json)
 
 ```
-cat example/example4.json; bin/jsonstats example/example4.json
+cat examples/example4.json; bin/jsonstats examples/example4.json
 ```
 
-## Example Output(`<json-file>` = example/example4.json)
+## Example Output(`<json-file>` = examples/example4.json)
 
 ```
 {
