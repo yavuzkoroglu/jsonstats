@@ -27,6 +27,7 @@ obj/jsonstats.o:                        \
     obj                                 \
     include/jsonstats.h                 \
     padkit/include/padkit/jsonparser.h  \
+    padkit/include/padkit/unused.h      \
     src/jsonstats.c                     \
     ; ${COMPILE} ${INCLUDES} src/jsonstats.c -c -o obj/jsonstats.o
 
