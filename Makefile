@@ -1,36 +1,39 @@
 include padkit/compile.mk
 
 INCLUDES=-Iinclude -Ipadkit/include
-OBJECTS=obj/jsonstats.o
+OBJECTS=obj/jsonstats.o                 \
+        padkit/obj/padkit/jsonparser.o  \
+        padkit/obj/padkit/memalloc.o
 
-all: clean bin/jsonstats
+default: bin/jsonstats
 
-.PHONY: all clean cleanobjects documentation libpadkit objects
+.FORCE:
+
+.PHONY: .FORCE clean default
 
 bin: ; mkdir bin
 
-bin/jsonstats:                          \
+bin/jsonstats: .FORCE                   \
     bin                                 \
-    libpadkit                           \
     ${OBJECTS}                          \
-	; ${COMPILE} ${OBJECTS} padkit/lib/libpadkit.a -o bin/jsonstats
+	; ${COMPILE} ${OBJECTS} -o bin/jsonstats
 
 clean: ; rm -rf obj bin *.gcno *.gcda *.gcov html latex
 
-cleanobjects: ; rm -rf obj
-
-documentation: ; doxygen
-
 obj: ; mkdir obj
 
-obj/jsonstats.o:                        \
+obj/jsonstats.o: .FORCE                 \
     obj                                 \
     include/jsonstats.h                 \
     padkit/include/padkit/jsonparser.h  \
     padkit/include/padkit/unused.h      \
+    padkit/obj/padkit/jsonparser.o      \
+    padkit/obj/padkit/memalloc.o        \
     src/jsonstats.c                     \
     ; ${COMPILE} ${INCLUDES} src/jsonstats.c -c -o obj/jsonstats.o
 
-objects: cleanobjects ${OBJECTS}
+padkit/obj/padkit/jsonparser.o: .FORCE  \
+    ; make -C padkit obj/padkit/jsonparser.o
 
-libpadkit: ; make -C padkit clean lib/libpadkit.a
+padkit/obj/padkit/memalloc.o: .FORCE    \
+    ; make -C padkit obj/padkit/memalloc.o
