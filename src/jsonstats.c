@@ -34,7 +34,7 @@ static size_t maxStrLen     = 0;
 
 static double runningAvg    = 0.00;
 
-static void atArrayEnd_jstat(JSONParser jp[static const 1]) {
+static void atArrayEnd_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* ']' is a token. */
@@ -46,7 +46,7 @@ static void atArrayEnd_jstat(JSONParser jp[static const 1]) {
     depth--;
 }
 
-static void atArrayStart_jstat(JSONParser jp[static const 1]) {
+static void atArrayStart_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* Count the preceding ',' or ':' token, if available. */
@@ -64,20 +64,20 @@ static void atArrayStart_jstat(JSONParser jp[static const 1]) {
     if (maxDepth < depth) maxDepth = depth;
 }
 
-static void atFalse_jstat(JSONParser jp[static const 1]) {
+static void atFalse_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
     nBooleans++;
     nFalses++;
 }
 
-static void atNameEnd_jstat(JSONParser jp[static const 1]) {
+static void atNameEnd_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* The next token will be preceded by a ':'. */
     isFirstElement = 0;
 }
 
-static void atNameStart_jstat(JSONParser jp[static const 1]) {
+static void atNameStart_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* Count the preceding ',' or ':' token, if available. */
@@ -90,20 +90,20 @@ static void atNameStart_jstat(JSONParser jp[static const 1]) {
     nNames++;
 }
 
-static void atNull_jstat(JSONParser jp[static const 1]) {
+static void atNull_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
     nNulls++;
 }
 
 static void atNumber_jstat(
-    JSONParser jp[static const 1],
+    JSONParser* const jp,
     double const number
 ) {
     MAYBE_UNUSED(jp)
     runningAvg += (number - runningAvg) / (double)(++nNumbers);
 }
 
-static void atObjectEnd_jstat(JSONParser jp[static const 1]) {
+static void atObjectEnd_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* '}' is a token. */
@@ -115,7 +115,7 @@ static void atObjectEnd_jstat(JSONParser jp[static const 1]) {
     depth--;
 }
 
-static void atObjectStart_jstat(JSONParser jp[static const 1]) {
+static void atObjectStart_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* Count the preceding ',' or ':' token, if available. */
@@ -133,7 +133,7 @@ static void atObjectStart_jstat(JSONParser jp[static const 1]) {
     if (maxDepth < depth) maxDepth = depth;
 }
 
-static void atRootStart_jstat(JSONParser jp[static const 1]) {
+static void atRootStart_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     isFirstElement  = 1;
@@ -162,7 +162,7 @@ static void atRootStart_jstat(JSONParser jp[static const 1]) {
 }
 
 static void atString_jstat(
-    JSONParser jp[static const 1],
+    JSONParser* const jp,
     char const str[static const 1],
     size_t const len
 ) {
@@ -174,13 +174,13 @@ static void atString_jstat(
     if (maxStrLen < len) maxStrLen = len;
 }
 
-static void atTrue_jstat(JSONParser jp[static const 1]) {
+static void atTrue_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
     nBooleans++;
     nTrues++;
 }
 
-static void atValueEnd_jstat(JSONParser jp[static const 1]) {
+static void atValueEnd_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     parsingValue    = 0;
@@ -189,7 +189,7 @@ static void atValueEnd_jstat(JSONParser jp[static const 1]) {
     isFirstElement = 0;
 }
 
-static void atValueStart_jstat(JSONParser jp[static const 1]) {
+static void atValueStart_jstat(JSONParser* const jp) {
     MAYBE_UNUSED(jp)
 
     /* Count the preceding ',' or ':' token, if available. */
@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
 
         switch (parseStream_jsonp(jp)) {
             case JSON_PARSER_OK:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
                 fclose(jsonFile);
 
                 dump_jstat();
@@ -266,34 +266,34 @@ int main(int argc, char* argv[]) {
 
                 return EXIT_SUCCESS;
             case JSON_PARSER_MEMORY_ERROR:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
                 fclose(jsonFile);
 
                 puts("ERROR @ JSONParser: Memory Error\n");
 
                 return EXIT_FAILURE;
             case JSON_PARSER_STACK_ERROR:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
                 fclose(jsonFile);
 
                 puts("ERROR @ JSONParser: Stack Error\n");
 
                 return EXIT_FAILURE;
             case JSON_PARSER_STREAM_ERROR:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
 
                 puts("ERROR @ JSONParser: I/O Error\n");
 
                 return EXIT_FAILURE;
             case JSON_PARSER_STRING_ERROR:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
                 fclose(jsonFile);
 
                 puts("ERROR @ JSONParser: String Error\n");
 
                 return EXIT_FAILURE;
             case JSON_PARSER_SYNTAX_ERROR:
-                free_jsonp(jp);
+                destruct_jsonp(jp);
                 fclose(jsonFile);
 
                 puts("ERROR @ JSONParser: Syntax Error\n");
